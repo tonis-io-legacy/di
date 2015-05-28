@@ -9,8 +9,7 @@
     "description": "Spiffy\\Inject is a light-weight, HHVM compatible, and dependency lite DI container.",
     "license": "BSD-3-Clause",
     "require": {
-        "php": ">=5.4",
-        "container-interop/container-interop": "^1.1.0"
+        "php": ">=5.4"
     },
     "require-dev": {
         "doctrine/annotations": "~1.2",
