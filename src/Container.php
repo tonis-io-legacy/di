@@ -2,9 +2,7 @@
 
 namespace Tonis\Di;
 
-use Interop\Container\ContainerInterface;
-
-final class Container implements \ArrayAccess, ContainerInterface
+final class Container implements \ArrayAccess
 {
     /**
      * @var string
