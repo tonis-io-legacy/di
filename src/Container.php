@@ -209,22 +209,26 @@ final class Container implements \ArrayAccess
      * @param mixed $spec
      * @return \Closure
      */
-    protected function createInstanceCallback($name, $spec)
+    private function createInstanceCallback($name, $spec)
     {
         if (is_string($spec) && class_exists($spec)) {
             $spec = new $spec();
         }
 
         $callback = function () use ($name, $spec) {
-            if ($spec instanceof \Closure) {
+            if (is_callable($spec)) {
                 return $spec($this);
-            } elseif ($spec instanceof ServiceFactoryInterface) {
+            }
+            if ($spec instanceof ServiceFactoryInterface) {
                 return $spec->createService($this);
-            } elseif (is_object($spec)) {
+            }
+            if (is_object($spec)) {
                 return $spec;
-            } elseif (is_array($spec)) {
+            }
+            if (is_array($spec)) {
                 return $this->createFromArray($name, $spec);
-            } elseif (is_null($spec)) {
+            }
+            if (is_null($spec)) {
                 throw new Exception\NullServiceException($name);
             }
 
