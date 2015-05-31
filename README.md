@@ -214,7 +214,7 @@ $i->set('ArrayObject', ['ArrayObjectFactory', [['foo' => 'bar']]);
 
 ### Annotations combined with a generator
 
-The DI package provides annotations that you can use to assist in creating configurations for services.
+Tonis\Di provides annotations that you can use to assist in creating configurations for services.
 
 ```php
 namespace Tonis\Di\TestAsset;
