@@ -214,28 +214,31 @@ final class Container implements \ArrayAccess
         if (is_string($spec) && class_exists($spec)) {
             $spec = new $spec();
         }
-
-        $callback = function () use ($name, $spec) {
-            if (is_callable($spec)) {
+        if (is_callable($spec)) {
+            return function () use ($spec) {
                 return $spec($this);
-            }
-            if ($spec instanceof ServiceFactoryInterface) {
+            };
+        }
+        if ($spec instanceof ServiceFactoryInterface) {
+            return function () use ($spec) {
                 return $spec->createService($this);
-            }
-            if (is_object($spec)) {
+            };
+        }
+        if (is_object($spec)) {
+            return function () use ($spec) {
                 return $spec;
-            }
-            if (is_array($spec)) {
+            };
+        }
+        if (is_array($spec)) {
+            return function () use ($name, $spec) {
                 return $this->createFromArray($name, $spec);
-            }
-            if (is_null($spec)) {
-                throw new Exception\NullServiceException($name);
-            }
+            };
+        }
+        if (is_null($spec)) {
+            throw new Exception\NullServiceException($name);
+        }
 
-            throw new Exception\InvalidServiceException($name);
-        };
-
-        return $callback;
+        throw new Exception\InvalidServiceException($name);
     }
 
     /**
