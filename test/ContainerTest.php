@@ -3,6 +3,7 @@
 namespace Tonis\Di;
 
 use Tonis\Di\TestAsset\TestDecorator;
+use Tonis\Di\TestAsset\TestFactory;
 use Tonis\Di\TestAsset\TestWrapper;
 
 /**
@@ -122,7 +123,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * @covers ::offsetSet
      * @covers ::offsetUnset
      */
-    public function testArrayAcces()
+    public function testArrayAccess()
     {
         $i = $this->i;
 
@@ -163,20 +164,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::get
-     * @covers \Tonis\Di\Exception\NullServiceException
-     * @expectedException \Tonis\Di\Exception\NullServiceException
-     * @expectedExceptionMessage Creating service "null" failed: the service result was null
-     */
-    public function testGetThrowsExceptionOnNullService()
-    {
-        $i = $this->i;
-        $i->set('null', null);
-
-        $this->assertNull($i->get('null'));
-    }
-
-    /**
-     * @covers ::get
      * @covers \Tonis\Di\Exception\RecursiveDependencyException
      * @expectedException \Tonis\Di\Exception\RecursiveDependencyException
      * @expectedExceptionMessage Dependency recursion detected for "recursion": "recursion->recursion"
@@ -209,7 +196,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetCreatesServicesFromStringsIfClassExists()
     {
         $i = $this->i;
-        $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
+        $i->set('class', new TestFactory());
         $result = $i->get('class');
 
         $this->assertInstanceOf('StdClass', $result);
@@ -230,205 +217,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $result = $i->get('foob');
 
         $this->assertInstanceOf('StdClass', $result);
-    }
-
-    /**
-     * @covers ::get
-     * @covers ::create
-     * @covers ::createInstanceCallback
-     * @covers \Tonis\Di\Exception\NullServiceException
-     * @expectedException \Tonis\Di\Exception\NullServiceException
-     * @expectedExceptionMessage Creating service "foob" failed: the service result was null
-     */
-    public function testGetCreatesServicesWithNullThrowsExpectedException()
-    {
-        $i = $this->i;
-        $i->set('foob', null);
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('StdClass', $result);
-    }
-
-    /**
-     * @covers ::createInstanceFromClass
-     * @covers \Tonis\Di\Exception\MissingClassException
-     * @expectedException \Tonis\Di\Exception\MissingClassException
-     * @expectedExceptionMessage Class "\FooClass" does not exist for service "foob"
-     */
-    public function testGetCreatesServicesWithArrayWhereClassDoesntExistThrowsException()
-    {
-        $i = $this->i;
-        $i->set('foob', ['\FooClass']);
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('StdClass', $result);
-    }
-
-    /**
-     * @covers ::get
-     * @covers ::create
-     * @covers ::createInstanceCallback
-     * @covers ::createFromArray
-     * @covers ::getDefaultIfUnset
-     * @covers ::createInstanceFromClass
-     */
-    public function testGetCreatesServicesWithArrayReturnExpectedObject()
-    {
-        $i = $this->i;
-        $i->set('foob', ['\StdClass']);
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('StdClass', $result);
-    }
-
-    /**
-     * @covers ::createInstanceFromClass
-     * @covers ::introspectArgs
-     */
-    public function testGetCreatesServicesWithArrayWhereArgsAreNotArrayReturnExpectedObject()
-    {
-        $i = $this->i;
-        $i->set('foob', ['Tonis\Di\TestAsset\TestClass', 'foo']);
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
-        $this->assertEquals('foo', $result->var);
-    }
-
-    /**
-     * @covers ::get
-     * @covers ::create
-     * @covers ::createInstanceCallback
-     * @covers ::createFromArray
-     * @covers ::getDefaultIfUnset
-     * @covers ::injectSetterDependencies
-     */
-    public function testGetCreatesServicesWithArrayAndSetterDependenciesReturnExpectedObject()
-    {
-        $i = $this->i;
-        $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
-        $i->set(
-            'foob',
-            [
-                'Tonis\Di\TestAsset\TestClass',
-                [],
-                [
-                    'getClass' => '@class',
-                    'doesntExist' => 'foo'
-                ]
-            ]
-        );
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
-    }
-
-    /**
-     * @covers ::getParameters
-     */
-    public function testGetCreatesServicesWithArrayAndVarSetterDependenciesReturnExpectedObject()
-    {
-        $i = $this->i;
-        $i['foo'] = 'bar';
-        $i->set(
-            'foob',
-            [
-                'Tonis\Di\TestAsset\TestClass',
-                [],
-                [
-                    'setArg' => '$foo',
-                ]
-            ]
-        );
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
-        $this->assertEquals('bar', $result->arg);
-    }
-
-    /**
-     * @covers ::getParameters
-     * @covers \Tonis\Di\Exception\ParameterDoesNotExistException
-     * @expectedException \Tonis\Di\Exception\ParameterDoesNotExistException
-     * @expectedExceptionMessage The parameter with name "baz" does not exist
-     */
-    public function testGetCreatesServicesWithArrayAndNonExistingVarSetterThrowsException()
-    {
-        $i = $this->i;
-        $i['foo'] = 'bar';
-        $i->set(
-            'foob',
-            [
-                'Tonis\Di\TestAsset\TestClass',
-                [],
-                [
-                    'setArg' => '$baz',
-                ]
-            ]
-        );
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
-        $this->assertEquals('bar', $result->arg);
-    }
-
-    /**
-     * @covers ::getParameters
-     * @covers ::getValueFromParameterString
-     */
-    public function testGetCreatesServicesWithArrayAndArrayVarSetter()
-    {
-        $i = $this->i;
-        $i['foo'] = [
-            'bar' => [
-                'baz' => 'floo'
-            ]
-        ];
-        $i->set(
-            'foob',
-            [
-                'Tonis\Di\TestAsset\TestClass',
-                [],
-                [
-                    'setArg' => '$foo[bar][baz]',
-                ]
-            ]
-        );
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
-        $this->assertEquals('floo', $result->arg);
-    }
-
-    /**
-     * @covers ::getParameters
-     * @covers ::getValueFromParameterString
-     * @covers \Tonis\Di\Exception\ParameterKeyDoesNotExistException
-     * @expectedException \Tonis\Di\Exception\ParameterKeyDoesNotExistException
-     * @expectedExceptionMessage The key "[bar][baz]" does not exist in parameter "foo"
-     */
-    public function testGetCreatesServicesWithArrayAndArrayVarSetterWhereKeyDoesNotExist()
-    {
-        $i = $this->i;
-        $i['foo'] = [
-            'bar' => [
-                'doo' => 'floo'
-            ]
-        ];
-        $i->set(
-            'foob',
-            [
-                'Tonis\Di\TestAsset\TestClass',
-                [],
-                [
-                    'setArg' => '$foo[bar][baz]',
-                ]
-            ]
-        );
-        $result = $i->get('foob');
-
-        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
-        $this->assertEquals('floo', $result->arg);
     }
 
     /**
@@ -546,7 +334,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testCreateHandlesClassStrings()
     {
         $i = $this->i;
-        $i->set('stdclass', 'StdClass');
+        $i->set('stdclass', new \StdClass);
         $this->assertInstanceOf('StdClass', $i->get('stdclass'));
     }
 
@@ -562,211 +350,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::create
-     * @covers ::createFromArray
-     * @covers \Tonis\Di\Exception\MissingClassException::__construct
-     * @expectedException \Tonis\Di\Exception\MissingClassException
-     * @expectedExceptionMessage Class "Missing\Class" does not exist for service "doesnotexist"
-     */
-    public function testCreateFromArrayThrowsExceptionOnInvalidClass()
-    {
-        $i = $this->i;
-        $i->set('doesnotexist', ['Missing\Class']);
-        $i->get('doesnotexist');
-    }
-
-    /**
-     * @covers ::create
-     * @covers ::createFromArray
-     */
-    public function testCreateHandlesArraysCreatesBasicClass()
-    {
-        $i = $this->i;
-        $i->set('array', ['StdClass']);
-
-        $this->assertInstanceOf('StdClass', $i->get('array'));
-    }
-
-    /**
-     * @covers ::create
-     * @covers ::createFromArray
-     */
-    public function testCreateFromArrayCreatesParameterizedClass()
-    {
-        $i = $this->i;
-        $i->set(
-            'array',
-            [
-                'Tonis\Di\TestAsset\ConstructorParams',
-                [
-                    'foogly',
-                    'boogly'
-                ]
-            ]
-        );
-
-        $result = $i->get('array');
-        $this->assertInstanceOf('Tonis\Di\TestAsset\ConstructorParams', $result);
-        $this->assertSame('foogly', $result->getFoo());
-        $this->assertSame('boogly', $result->getBar());
-    }
-
-    /**
-     * @covers ::create
-     * @covers ::createFromArray
-     * @covers ::introspect
-     */
-    public function testCreateFromArrayCreatesParameterizedClassFromParameters()
-    {
-        $i = $this->i;
-        $i['boogly'] = 'woogly';
-        $i->set(
-            'array',
-            [
-                'Tonis\Di\TestAsset\ConstructorParams',
-                [
-                    'foogly',
-                    '$boogly'
-                ]
-            ]
-        );
-
-        $result = $i->get('array');
-        $this->assertInstanceOf('Tonis\Di\TestAsset\ConstructorParams', $result);
-        $this->assertSame('foogly', $result->getFoo());
-        $this->assertSame('woogly', $result->getBar());
-    }
-
-    /**
-     * @covers ::create
-     * @covers ::createFromArray
-     * @covers ::introspect
-     */
-    public function testCreateFromArrayHandlesNestedParameters()
-    {
-        $i = $this->i;
-        $i['boogly'] = [
-            'woogly' => [
-                'foogly' => 'zoogly'
-            ]
-        ];
-        $i->set(
-            'array',
-            [
-                'Tonis\Di\TestAsset\ConstructorParams',
-                [
-                    'foogly',
-                    '$boogly[woogly][foogly]'
-                ]
-            ]
-        );
-
-        $result = $i->get('array');
-        $this->assertInstanceOf('Tonis\Di\TestAsset\ConstructorParams', $result);
-        $this->assertSame('foogly', $result->getFoo());
-        $this->assertSame('zoogly', $result->getBar());
-    }
-
-    /**
-     * @covers ::create
-     * @covers ::createFromArray
-     * @covers ::introspect
-     * @expectedException \Tonis\Di\Exception\ParameterKeyDoesNotExistException
-     * @expectedExceptionMessage The key "[woogly][zoogly]" does not exist in parameter "boogly"
-     */
-    public function testCreateFromArrayThrowsExceptionWhenMissingKeyForNestedParameter()
-    {
-        $i = $this->i;
-        $i['boogly'] = 'foogly';
-        $i->set(
-            'array',
-            [
-                'Tonis\Di\TestAsset\ConstructorParams',
-                [
-                    'foogly',
-                    '$boogly[woogly][zoogly]'
-                ]
-            ]
-        );
-
-        $i->get('array');
-    }
-
-    /**
-     * @covers ::create
-     * @covers ::createFromArray
-     * @covers ::introspect
-     */
-    public function testCreateHandlesArraysCreatesParameterizedClassFromService()
-    {
-        $foogly = new \StdClass();
-        $i = $this->i;
-        $i->set('foogly', $foogly);
-        $i->set(
-            'array',
-            [
-                'Tonis\Di\TestAsset\ConstructorParams',
-                [
-                    '@foogly',
-                    'boogly'
-                ]
-            ]
-        );
-
-        $result = $i->get('array');
-        $this->assertInstanceOf('Tonis\Di\TestAsset\ConstructorParams', $result);
-        $this->assertSame($foogly, $result->getFoo());
-        $this->assertSame('boogly', $result->getBar());
-    }
-
-    /**
-     * @covers ::create
-     * @covers ::createFromArray
-     * @covers ::introspect
-     */
-    public function testCreateHandlesArraysCreatesParameterizedClassWithSetters()
-    {
-        $boogly = new \StdClass();
-
-        $i = $this->i;
-        $i['foogly'] = 'foogly';
-        $i->set('boogly', $boogly);
-        $i->set(
-            'array',
-            [
-                'Tonis\Di\TestAsset\ConstructorParams',
-                [
-                    'foo',
-                    'bar'
-                ],
-                [
-                    'setFoo' => '$foogly',
-                    'setBar' => '@boogly',
-                    'setDoesNotExist' => 'skip'
-                ]
-            ]
-        );
-
-        $result = $i->get('array');
-        $this->assertInstanceOf('Tonis\Di\TestAsset\ConstructorParams', $result);
-        $this->assertSame('foogly', $result->getFoo());
-        $this->assertSame($boogly, $result->getBar());
-    }
-
-    /**
-     * @covers ::introspect
-     * @covers \Tonis\Di\Exception\ParameterDoesNotExistException
-     * @expectedException \Tonis\Di\Exception\ParameterDoesNotExistException
-     * @expectedExceptionMessage The parameter with name "param" does not exist
-     */
-    public function testIntrospectThrowsExceptionForInvalidParameter()
-    {
-        $i = $this->i;
-        $i->set('paramexception', ['StdClass', '$param']);
-        $i->get('paramexception');
-    }
-
-    /**
-     * @covers ::create
      * @covers \Tonis\Di\Exception\InvalidServiceException::__construct
      * @expectedException \Tonis\Di\Exception\InvalidServiceException
      * @expectedExceptionMessage Creating service "invalid" failed: the service spec is invalid
@@ -776,18 +359,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $i = $this->i;
         $i->set('invalid', true);
         $i->get('invalid');
-    }
-
-    /**
-     * @covers ::create
-     * @covers ::createFroMArray
-     */
-    public function testCreateFromArrayCreatesServiceIfInstanceIsServiceFactory()
-    {
-        $i = $this->i;
-        $i->set('factory', ['Tonis\Di\TestAsset\TestFactory']);
-
-        $this->assertInstanceOf('StdClass', $i->get('factory'));
     }
 
     /**
@@ -851,7 +422,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testServiceWrappersWithNoWrapperReturnsNull()
     {
         $i = $this->i;
-        $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
+        $i->set('class', new TestFactory());
         $result = $i->get('class');
 
         $this->assertInstanceOf('StdClass', $result);
@@ -900,7 +471,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testServiceDecoratorsWithNoDecoratorReturns()
     {
         $i = $this->i;
-        $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
+        $i->set('class', new TestFactory());
         $result = $i->get('class');
 
         $this->assertInstanceOf('StdClass', $result);

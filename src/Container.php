@@ -211,17 +211,14 @@ final class Container implements \ArrayAccess
      */
     private function createInstanceCallback($name, $spec)
     {
-        if (is_string($spec) && class_exists($spec)) {
-            $spec = new $spec();
+        if ($spec instanceof ServiceFactoryInterface) {
+            return function () use ($spec) {
+                return $spec->createService($this);
+            };
         }
         if (is_callable($spec)) {
             return function () use ($spec) {
                 return $spec($this);
-            };
-        }
-        if ($spec instanceof ServiceFactoryInterface) {
-            return function () use ($spec) {
-                return $spec->createService($this);
             };
         }
         if (is_object($spec)) {
@@ -229,15 +226,6 @@ final class Container implements \ArrayAccess
                 return $spec;
             };
         }
-        if (is_array($spec)) {
-            return function () use ($name, $spec) {
-                return $this->createFromArray($name, $spec);
-            };
-        }
-        if (is_null($spec)) {
-            throw new Exception\NullServiceException($name);
-        }
-
         throw new Exception\InvalidServiceException($name);
     }
 
@@ -281,173 +269,5 @@ final class Container implements \ArrayAccess
                 $decorator($this, $instance);
             }
         }
-    }
-
-    /**
-     * @param string $name
-     * @param array $array
-     * @return object
-     * @throws Exception\MissingClassException
-     */
-    protected function createFromArray($name, array $array)
-    {
-        $spec = $this->getDefaultIfUnset($array, 0, null);
-        $args = $this->getDefaultIfUnset($array, 1, []);
-
-        $instance = $this->createInstanceFromClass($name, $spec, $args);
-
-        if ($instance instanceof ServiceFactoryInterface) {
-            $instance = $instance->createService($this);
-        }
-
-        $this->injectSetterDependencies($instance, $this->getDefaultIfUnset($array, 2, []));
-
-        return $instance;
-    }
-
-    /**
-     * @param array $array
-     * @param int $index
-     * @param $default
-     * @return mixed
-     */
-    protected function getDefaultIfUnset(array $array, $index, $default)
-    {
-        if (isset($array[$index])) {
-            return $array[$index];
-        }
-        return $default;
-    }
-
-    /**
-     * @param object $object
-     * @param array $setters
-     * @return object
-     */
-    protected function injectSetterDependencies($object, array $setters)
-    {
-        foreach ($setters as $method => $value) {
-            if (!method_exists($object, $method)) {
-                continue;
-            }
-            $object->$method($this->introspect($value));
-        }
-
-        return $object;
-    }
-
-    /**
-     * @param string $name
-     * @param string $class
-     * @param string|array $args
-     * @throws Exception\MissingClassException
-     * @return object
-     */
-    protected function createInstanceFromClass($name, $class, $args)
-    {
-        $class = $this->introspect($class);
-
-        if (!class_exists($class)) {
-            throw new Exception\MissingClassException($class, $name);
-        }
-
-        if (!is_array($args)) {
-            $args = [$args];
-        }
-
-        $class = new \ReflectionClass($class);
-        return $class->newInstanceArgs($this->introspectArgs($args));
-    }
-
-    /**
-     * @param array $args
-     * @return array
-     */
-    protected function introspectArgs(array $args)
-    {
-        $args = (array) $args;
-        foreach ($args as &$arg) {
-            $arg = $this->introspect($arg);
-        }
-
-        return $args;
-    }
-
-    /**
-     * @param string $value
-     * @throws Exception\ParameterDoesNotExistException
-     * @throws Exception\ParameterKeyDoesNotExistException
-     * @return mixed
-     */
-    protected function introspect($value)
-    {
-        if ($value[0] !== $this->paramIdentifier && $value[0] !== $this->serviceIdentifier) {
-            return $value;
-        }
-
-        $identifier = $value[0];
-        $name = substr($value, 1);
-
-        if ($identifier == $this->serviceIdentifier) {
-            return $this->get($name);
-        }
-
-        return $this->getParameters($name);
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     * @throws Exception\ParameterDoesNotExistException
-     * @throws Exception\ParameterKeyDoesNotExistException
-     */
-    protected function getParameters($name)
-    {
-        $paramString = '';
-
-        // split the foo and [baz][bar] from foo[baz][bar]
-        // foo becomes the root name and [baz][bar] are the keys in the root we're looking for
-        if (preg_match('@([^\[]+)\[[^\]]+\]@', $name, $matches)) {
-            $paramString = str_replace($matches[1], '', $name);
-            $name = $matches[1];
-        }
-
-        if (!$this->offsetExists($name)) {
-            throw new Exception\ParameterDoesNotExistException($name);
-        }
-
-        return $this->getValueFromParameterString($name, $paramString, $this->offsetGet($name));
-    }
-
-    /**
-     * Iterate through the param string traversing the [baz][bar] keys until we have
-     * the final value.
-     *
-     * @param string $name
-     * @param string $paramString
-     * @param string $value
-     * @return string
-     * @throws Exception\ParameterKeyDoesNotExistException
-     */
-    protected function getValueFromParameterString($name, $paramString, $value)
-    {
-        $original = $paramString;
-
-        while (preg_match('@^(\[([^\]]+)\])@', $paramString, $matches)) {
-            $key = $matches[2];
-            $paramString = str_replace($matches[1], '', $paramString);
-
-            if (!isset($value[$key])) {
-                throw new Exception\ParameterKeyDoesNotExistException($name, $original);
-            }
-
-            $value = $value[$key];
-
-            if (empty($paramString)) {
-                break;
-            }
-        }
-
-        return $value;
     }
 }
