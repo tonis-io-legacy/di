@@ -69,6 +69,7 @@ final class MetadataFactory
      */
     private function loadMetadataMethods(\ReflectionClass $reflClass, ClassMetadata $md)
     {
+        /** @var \ReflectionMethod $reflMethod */
         foreach ($reflClass->getMethods() as $reflMethod) {
             $methodAnnotations = $this->reader->getMethodAnnotations($reflMethod);
 
@@ -79,7 +80,7 @@ final class MetadataFactory
                     continue;
                 }
 
-                $md->addMethod($reflMethod->getName(), $annotation->params);
+                $md->addMethod($reflMethod->name, $annotation->params);
             }
         }
     }

@@ -29,7 +29,7 @@ class ArrayGenerator implements GeneratorInterface
         foreach ($metadata->getConstructor() as $annotation) {
             $value = $this->prepareValueFromAnnotation($annotation);
 
-            if (!$value) {
+            if ($value === null) {
                 continue;
             }
 
@@ -50,7 +50,7 @@ class ArrayGenerator implements GeneratorInterface
             foreach ($annotations as $annotation) {
                 $value = $this->prepareValueFromAnnotation($annotation);
 
-                if (!$value) {
+                if ($value === null) {
                     continue;
                 }
 
