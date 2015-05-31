@@ -203,6 +203,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::get
+     * @covers ::create
      * @covers ::createInstanceCallback
      */
     public function testGetCreatesServicesFromStringsIfClassExists()
@@ -210,6 +211,86 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $i = $this->i;
         $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
         $result = $i->get('class');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     * @expectedException \Tonis\Di\Exception\InvalidServiceException
+     * @expectedExceptionMessage Creating service "foob" failed: the service spec is invalid
+     */
+    public function testGetCreatesServicesWithNoValidOptionThrowsExpectedException()
+    {
+        $i = $this->i;
+        $i->set('foob', 'Tonis\Di\TestAsset\DoesNotExist');
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     * @expectedException \Tonis\Di\Exception\NullServiceException
+     * @expectedExceptionMessage Creating service "foob" failed: the service result was null
+     */
+    public function testGetCreatesServicesWithNullThrowsExpectedException()
+    {
+        $i = $this->i;
+        $i->set('foob', null);
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     * @covers ::createFromArray
+     */
+    public function testGetCreatesServicesWithArrayReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i->set('foob', ['\StdClass']);
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     */
+    public function testGetCreatesServicesWithObjectReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i->set('foob', new \StdClass());
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     */
+    public function testGetCreatesServicesWithClosureReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i->set(
+            'foob',
+            function (Container $container) {
+                return new \StdClass();
+            }
+        );
+        $result = $i->get('foob');
 
         $this->assertInstanceOf('StdClass', $result);
     }
