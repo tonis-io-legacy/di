@@ -192,7 +192,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::get
-     * @covers \Tonis\Di\Exception\RecursiveDependencyException
+     * @covers \Tonis\Di\Exception\ServiceDoesNotExistException
      * @expectedException \Tonis\Di\Exception\ServiceDoesNotExistException
      * @expectedExceptionMessage The service with name "doesnotexist" does not exist
      */
@@ -219,6 +219,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * @covers ::get
      * @covers ::create
      * @covers ::createInstanceCallback
+     * @covers \Tonis\Di\Exception\InvalidServiceException
      * @expectedException \Tonis\Di\Exception\InvalidServiceException
      * @expectedExceptionMessage Creating service "foob" failed: the service spec is invalid
      */
@@ -235,6 +236,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * @covers ::get
      * @covers ::create
      * @covers ::createInstanceCallback
+     * @covers \Tonis\Di\Exception\NullServiceException
      * @expectedException \Tonis\Di\Exception\NullServiceException
      * @expectedExceptionMessage Creating service "foob" failed: the service result was null
      */
@@ -249,6 +251,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::createInstanceFromClass
+     * @covers \Tonis\Di\Exception\MissingClassException
      * @expectedException \Tonis\Di\Exception\MissingClassException
      * @expectedExceptionMessage Class "\FooClass" does not exist for service "foob"
      */
@@ -345,6 +348,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::getParameters
+     * @covers \Tonis\Di\Exception\ParameterDoesNotExistException
      * @expectedException \Tonis\Di\Exception\ParameterDoesNotExistException
      * @expectedExceptionMessage The parameter with name "baz" does not exist
      */
@@ -399,6 +403,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::getParameters
      * @covers ::getValueFromParameterString
+     * @covers \Tonis\Di\Exception\ParameterKeyDoesNotExistException
      * @expectedException \Tonis\Di\Exception\ParameterKeyDoesNotExistException
      * @expectedExceptionMessage The key "[bar][baz]" does not exist in parameter "foo"
      */
