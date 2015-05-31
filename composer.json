@@ -6,7 +6,7 @@
             "email": "theman@spiffyjr.me"
         }
     ],
-    "description": "Spiffy\\Inject is a light-weight, HHVM compatible, and dependency lite DI container.",
+    "description": "A light-weight, HHVM compatible, and dependency lite DI container.",
     "license": "BSD-3-Clause",
     "require": {
         "php": ">=5.5"
