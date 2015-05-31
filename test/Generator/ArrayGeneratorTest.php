@@ -9,7 +9,7 @@ use Tonis\Di\Metadata\MetadataFactory;
 /**
  * @coversDefaultClass \Tonis\Di\Generator\ArrayGenerator
  */
-class ArrayGeneratorTest extends \PHPUnit_Framework_TestCase 
+class ArrayGeneratorTest extends \PHPUnit_Framework_TestCase
 {
     /** @var ArrayGenerator */
     private $g;

@@ -10,20 +10,26 @@ use Tonis\Di\TestAsset\TestWrapper;
  */
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
+
     /**
      * @var Container
      */
     protected $i;
 
     /**
-     * @covers ::set, \Tonis\Di\Exception\ServiceExistsException::__construct
+     * @covers ::set
+     * @covers \Tonis\Di\Exception\ServiceExistsException::__construct
      * @expectedException \Tonis\Di\Exception\ServiceExistsException
      * @expectedExceptionMessage The service with name "foo" already exists
      */
     public function testSetThrowsExceptionForDuplicates()
     {
         $i = $this->i;
-        $i->set('foo', function() {});
+        $i->set(
+            'foo',
+            function () {
+            }
+        );
     }
 
     /**
@@ -66,8 +72,16 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testDecorate()
     {
         $i = $this->i;
-        $i->decorate('foo', function() {});
-        $i->decorate('bar', function() {});
+        $i->decorate(
+            'foo',
+            function () {
+            }
+        );
+        $i->decorate(
+            'bar',
+            function () {
+            }
+        );
 
         $refl = new \ReflectionClass($i);
         $prop = $refl->getProperty('decorators');
@@ -83,8 +97,16 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testWrap()
     {
         $i = $this->i;
-        $i->wrap('foo', function() {});
-        $i->wrap('bar', function() {});
+        $i->wrap(
+            'foo',
+            function () {
+            }
+        );
+        $i->wrap(
+            'bar',
+            function () {
+            }
+        );
 
         $refl = new \ReflectionClass($i);
         $prop = $refl->getProperty('wrappers');
@@ -95,7 +117,10 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::offsetExists, ::offsetGet, ::offsetSet, ::offsetUnset
+     * @covers ::offsetExists
+     * @covers ::offsetGet
+     * @covers ::offsetSet
+     * @covers ::offsetUnset
      */
     public function testArrayAcces()
     {
@@ -110,7 +135,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::getParamIdentifier, ::setParamIdentifier
+     * @covers ::getParamIdentifier
+     * @covers ::setParamIdentifier
      */
     public function testParamIdentifier()
     {
@@ -123,7 +149,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * @covers ::getServiceIdentifier, ::setServiceIdentifier
+     * @covers ::getServiceIdentifier
+     * @covers ::setServiceIdentifier
      */
     public function testServiceIdentifier()
     {
@@ -135,7 +162,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::get, \Tonis\Di\Exception\NullServiceException
+     * @covers ::get
+     * @covers \Tonis\Di\Exception\NullServiceException
      * @expectedException \Tonis\Di\Exception\NullServiceException
      * @expectedExceptionMessage Creating service "null" failed: the service result was null
      */
@@ -148,21 +176,23 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::get, \Tonis\Di\Exception\RecursiveDependencyException
+     * @covers ::get
+     * @covers \Tonis\Di\Exception\RecursiveDependencyException
      * @expectedException \Tonis\Di\Exception\RecursiveDependencyException
      * @expectedExceptionMessage Dependency recursion detected for "recursion": "recursion->recursion"
      */
     public function testGetThrowsExceptionForRecursion()
     {
         $i = $this->i;
-        $i->set('recursion', function(Container $i) {
+        $i->set('recursion', function (Container $i) {
             return $i->get('recursion');
         });
         $i->get('recursion');
     }
 
     /**
-     * @covers ::get, \Tonis\Di\Exception\RecursiveDependencyException
+     * @covers ::get
+     * @covers \Tonis\Di\Exception\ServiceDoesNotExistException
      * @expectedException \Tonis\Di\Exception\ServiceDoesNotExistException
      * @expectedExceptionMessage The service with name "doesnotexist" does not exist
      */
@@ -172,13 +202,264 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::get, ::createInstanceCallback
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
      */
     public function testGetCreatesServicesFromStringsIfClassExists()
     {
         $i = $this->i;
         $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
         $result = $i->get('class');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     * @covers \Tonis\Di\Exception\InvalidServiceException
+     * @expectedException \Tonis\Di\Exception\InvalidServiceException
+     * @expectedExceptionMessage Creating service "foob" failed: the service spec is invalid
+     */
+    public function testGetCreatesServicesWithNoValidOptionThrowsExpectedException()
+    {
+        $i = $this->i;
+        $i->set('foob', 'Tonis\Di\TestAsset\DoesNotExist');
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     * @covers \Tonis\Di\Exception\NullServiceException
+     * @expectedException \Tonis\Di\Exception\NullServiceException
+     * @expectedExceptionMessage Creating service "foob" failed: the service result was null
+     */
+    public function testGetCreatesServicesWithNullThrowsExpectedException()
+    {
+        $i = $this->i;
+        $i->set('foob', null);
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::createInstanceFromClass
+     * @covers \Tonis\Di\Exception\MissingClassException
+     * @expectedException \Tonis\Di\Exception\MissingClassException
+     * @expectedExceptionMessage Class "\FooClass" does not exist for service "foob"
+     */
+    public function testGetCreatesServicesWithArrayWhereClassDoesntExistThrowsException()
+    {
+        $i = $this->i;
+        $i->set('foob', ['\FooClass']);
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     * @covers ::createFromArray
+     * @covers ::getDefaultIfUnset
+     * @covers ::createInstanceFromClass
+     */
+    public function testGetCreatesServicesWithArrayReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i->set('foob', ['\StdClass']);
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::createInstanceFromClass
+     * @covers ::introspectArgs
+     */
+    public function testGetCreatesServicesWithArrayWhereArgsAreNotArrayReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i->set('foob', ['Tonis\Di\TestAsset\TestClass', 'foo']);
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
+        $this->assertEquals('foo', $result->var);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     * @covers ::createFromArray
+     * @covers ::getDefaultIfUnset
+     * @covers ::injectSetterDependencies
+     */
+    public function testGetCreatesServicesWithArrayAndSetterDependenciesReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
+        $i->set(
+            'foob',
+            [
+                'Tonis\Di\TestAsset\TestClass',
+                [],
+                [
+                    'getClass' => '@class',
+                    'doesntExist' => 'foo'
+                ]
+            ]
+        );
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
+    }
+
+    /**
+     * @covers ::getParameters
+     */
+    public function testGetCreatesServicesWithArrayAndVarSetterDependenciesReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i['foo'] = 'bar';
+        $i->set(
+            'foob',
+            [
+                'Tonis\Di\TestAsset\TestClass',
+                [],
+                [
+                    'setArg' => '$foo',
+                ]
+            ]
+        );
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
+        $this->assertEquals('bar', $result->arg);
+    }
+
+    /**
+     * @covers ::getParameters
+     * @covers \Tonis\Di\Exception\ParameterDoesNotExistException
+     * @expectedException \Tonis\Di\Exception\ParameterDoesNotExistException
+     * @expectedExceptionMessage The parameter with name "baz" does not exist
+     */
+    public function testGetCreatesServicesWithArrayAndNonExistingVarSetterThrowsException()
+    {
+        $i = $this->i;
+        $i['foo'] = 'bar';
+        $i->set(
+            'foob',
+            [
+                'Tonis\Di\TestAsset\TestClass',
+                [],
+                [
+                    'setArg' => '$baz',
+                ]
+            ]
+        );
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
+        $this->assertEquals('bar', $result->arg);
+    }
+
+    /**
+     * @covers ::getParameters
+     * @covers ::getValueFromParameterString
+     */
+    public function testGetCreatesServicesWithArrayAndArrayVarSetter()
+    {
+        $i = $this->i;
+        $i['foo'] = [
+            'bar' => [
+                'baz' => 'floo'
+            ]
+        ];
+        $i->set(
+            'foob',
+            [
+                'Tonis\Di\TestAsset\TestClass',
+                [],
+                [
+                    'setArg' => '$foo[bar][baz]',
+                ]
+            ]
+        );
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
+        $this->assertEquals('floo', $result->arg);
+    }
+
+    /**
+     * @covers ::getParameters
+     * @covers ::getValueFromParameterString
+     * @covers \Tonis\Di\Exception\ParameterKeyDoesNotExistException
+     * @expectedException \Tonis\Di\Exception\ParameterKeyDoesNotExistException
+     * @expectedExceptionMessage The key "[bar][baz]" does not exist in parameter "foo"
+     */
+    public function testGetCreatesServicesWithArrayAndArrayVarSetterWhereKeyDoesNotExist()
+    {
+        $i = $this->i;
+        $i['foo'] = [
+            'bar' => [
+                'doo' => 'floo'
+            ]
+        ];
+        $i->set(
+            'foob',
+            [
+                'Tonis\Di\TestAsset\TestClass',
+                [],
+                [
+                    'setArg' => '$foo[bar][baz]',
+                ]
+            ]
+        );
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('Tonis\Di\TestAsset\TestClass', $result);
+        $this->assertEquals('floo', $result->arg);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     */
+    public function testGetCreatesServicesWithObjectReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i->set('foob', new \StdClass());
+        $result = $i->get('foob');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::get
+     * @covers ::create
+     * @covers ::createInstanceCallback
+     */
+    public function testGetCreatesServicesWithClosureReturnExpectedObject()
+    {
+        $i = $this->i;
+        $i->set(
+            'foob',
+            function (Container $container) {
+                return new \StdClass();
+            }
+        );
+        $result = $i->get('foob');
 
         $this->assertInstanceOf('StdClass', $result);
     }
@@ -206,9 +487,21 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetUnsetSpecOnceComplete()
     {
         $i = new Container();
-        $i->set('foo', function() {});
-        $i->set('bar', function() {});
-        $i->set('baz', function() {});
+        $i->set(
+            'foo',
+            function () {
+            }
+        );
+        $i->set(
+            'bar',
+            function () {
+            }
+        );
+        $i->set(
+            'baz',
+            function () {
+            }
+        );
 
         $refl = new \ReflectionClass($i);
         $prop = $refl->getProperty('specs');
@@ -229,7 +522,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testCreateHandlesClosures()
     {
         $i = $this->i;
-        $i->set('closure', function() {
+        $i->set('closure', function () {
             return 'closure';
         });
         $this->assertSame('closure', $i->get('closure'));
@@ -268,7 +561,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, \Tonis\Di\Exception\MissingClassException::__construct
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers \Tonis\Di\Exception\MissingClassException::__construct
      * @expectedException \Tonis\Di\Exception\MissingClassException
      * @expectedExceptionMessage Class "Missing\Class" does not exist for service "doesnotexist"
      */
@@ -280,7 +575,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray
+     * @covers ::create
+     * @covers ::createFromArray
      */
     public function testCreateHandlesArraysCreatesBasicClass()
     {
@@ -291,7 +587,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray
+     * @covers ::create
+     * @covers ::createFromArray
      */
     public function testCreateFromArrayCreatesParameterizedClass()
     {
@@ -314,7 +611,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      */
     public function testCreateFromArrayCreatesParameterizedClassFromParameters()
     {
@@ -338,7 +637,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      */
     public function testCreateFromArrayHandlesNestedParameters()
     {
@@ -366,7 +667,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      * @expectedException \Tonis\Di\Exception\ParameterKeyDoesNotExistException
      * @expectedExceptionMessage The key "[woogly][zoogly]" does not exist in parameter "boogly"
      */
@@ -389,7 +692,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      */
     public function testCreateHandlesArraysCreatesParameterizedClassFromService()
     {
@@ -414,7 +719,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      */
     public function testCreateHandlesArraysCreatesParameterizedClassWithSetters()
     {
@@ -446,7 +753,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::introspect, \Tonis\Di\Exception\ParameterDoesNotExistException
+     * @covers ::introspect
+     * @covers \Tonis\Di\Exception\ParameterDoesNotExistException
      * @expectedException \Tonis\Di\Exception\ParameterDoesNotExistException
      * @expectedExceptionMessage The parameter with name "param" does not exist
      */
@@ -458,7 +766,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, \Tonis\Di\Exception\InvalidServiceException::__construct
+     * @covers ::create
+     * @covers \Tonis\Di\Exception\InvalidServiceException::__construct
      * @expectedException \Tonis\Di\Exception\InvalidServiceException
      * @expectedExceptionMessage Creating service "invalid" failed: the service spec is invalid
      */
@@ -470,7 +779,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFroMArray
+     * @covers ::create
+     * @covers ::createFroMArray
      */
     public function testCreateFromArrayCreatesServiceIfInstanceIsServiceFactory()
     {
@@ -481,14 +791,15 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::wrapService
+     * @covers ::create
+     * @covers ::wrapService
      */
     public function testWrappersModifiesOriginalInstance()
     {
         $object = new \StdClass();
         $i = $this->i;
         $i->set('wrapper', $object);
-        $i->wrap('wrapper', function(Container $i, $name, $callable) {
+        $i->wrap('wrapper', function (Container $i, $name, $callable) {
             $object = $callable();
             $object->foo = 'bar';
 
@@ -501,14 +812,15 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::wrapService
+     * @covers ::create
+     * @covers ::wrapService
      */
     public function testCallableWrappersReturnNewInstance()
     {
         $object = new \StdClass();
         $i = $this->i;
         $i->set('wrapper', $object);
-        $i->wrap('wrapper', function() {
+        $i->wrap('wrapper', function () {
             return [];
         });
 
@@ -517,7 +829,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::wrapService
+     * @covers ::create
+     * @covers ::wrapService
      */
     public function testServiceWrappersReturnNewInstance()
     {
@@ -533,14 +846,27 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::decorateService
+     * @covers ::wrapService
+     */
+    public function testServiceWrappersWithNoWrapperReturnsNull()
+    {
+        $i = $this->i;
+        $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
+        $result = $i->get('class');
+
+        $this->assertInstanceOf('StdClass', $result);
+    }
+
+    /**
+     * @covers ::create
+     * @covers ::decorateService
      */
     public function testCallableDecoratorsModifyInstance()
     {
         $object = new \StdClass();
         $i = $this->i;
         $i->set('decorate', $object);
-        $i->decorate('decorate', function(Container $i, \StdClass $obj) {
+        $i->decorate('decorate', function (Container $i, \StdClass $obj) {
             $obj->foo = 'bar';
 
             return $obj;
@@ -552,7 +878,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::decorateService
+     * @covers ::create
+     * @covers ::decorateService
      */
     public function testServiceDecoratorsModifyInstance()
     {
@@ -565,6 +892,18 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $result = $i->get('decorate');
         $this->assertSame($object, $result);
         $this->assertTrue($result->didItWork);
+    }
+
+    /**
+     * @covers ::decorateService
+     */
+    public function testServiceDecoratorsWithNoDecoratorReturns()
+    {
+        $i = $this->i;
+        $i->set('class', 'Tonis\Di\TestAsset\TestFactory');
+        $result = $i->get('class');
+
+        $this->assertInstanceOf('StdClass', $result);
     }
 
     protected function setUp()

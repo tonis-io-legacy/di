@@ -3,16 +3,17 @@
 namespace Tonis\Di;
 
 /**
- * @covers \Tonis\Di\ContainerAwareTrait
+ * @coversDefaultClass \Tonis\Di\ContainerAwareTrait
  */
 class ContainerAwareTraitTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers ::getContainer, ::setContainer
+     * @covers ::di
      */
     public function testSetGetContainer()
     {
+        /** @var ContainerAwareTrait $t */
         $t = $this->getObjectForTrait('Tonis\Di\ContainerAwareTrait');
-        $this->assertInstanceOf('Tonis\Di\Container', $t->dic());
+        $this->assertInstanceOf('Tonis\Di\Container', $t->di());
     }
 }
