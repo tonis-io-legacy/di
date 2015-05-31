@@ -5,7 +5,7 @@ namespace Tonis\Di\Metadata;
 /**
  * @coversDefaultClass \Tonis\Di\Metadata\ClassMetadata
  */
-class ClassMetadataTest extends \PHPUnit_Framework_TestCase 
+class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 {
     /** @var ClassMetadata */
     private $md;

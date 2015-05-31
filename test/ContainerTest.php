@@ -10,6 +10,7 @@ use Tonis\Di\TestAsset\TestWrapper;
  */
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
+
     /**
      * @var Container
      */
@@ -24,7 +25,11 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testSetThrowsExceptionForDuplicates()
     {
         $i = $this->i;
-        $i->set('foo', function() {});
+        $i->set(
+            'foo',
+            function () {
+            }
+        );
     }
 
     /**
@@ -67,8 +72,16 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testDecorate()
     {
         $i = $this->i;
-        $i->decorate('foo', function() {});
-        $i->decorate('bar', function() {});
+        $i->decorate(
+            'foo',
+            function () {
+            }
+        );
+        $i->decorate(
+            'bar',
+            function () {
+            }
+        );
 
         $refl = new \ReflectionClass($i);
         $prop = $refl->getProperty('decorators');
@@ -84,8 +97,16 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testWrap()
     {
         $i = $this->i;
-        $i->wrap('foo', function() {});
-        $i->wrap('bar', function() {});
+        $i->wrap(
+            'foo',
+            function () {
+            }
+        );
+        $i->wrap(
+            'bar',
+            function () {
+            }
+        );
 
         $refl = new \ReflectionClass($i);
         $prop = $refl->getProperty('wrappers');
@@ -163,7 +184,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetThrowsExceptionForRecursion()
     {
         $i = $this->i;
-        $i->set('recursion', function(Container $i) {
+        $i->set('recursion', function (Container $i) {
             return $i->get('recursion');
         });
         $i->get('recursion');
@@ -216,9 +237,21 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetUnsetSpecOnceComplete()
     {
         $i = new Container();
-        $i->set('foo', function() {});
-        $i->set('bar', function() {});
-        $i->set('baz', function() {});
+        $i->set(
+            'foo',
+            function () {
+            }
+        );
+        $i->set(
+            'bar',
+            function () {
+            }
+        );
+        $i->set(
+            'baz',
+            function () {
+            }
+        );
 
         $refl = new \ReflectionClass($i);
         $prop = $refl->getProperty('specs');
@@ -239,7 +272,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testCreateHandlesClosures()
     {
         $i = $this->i;
-        $i->set('closure', function() {
+        $i->set('closure', function () {
             return 'closure';
         });
         $this->assertSame('closure', $i->get('closure'));
@@ -516,7 +549,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $object = new \StdClass();
         $i = $this->i;
         $i->set('wrapper', $object);
-        $i->wrap('wrapper', function(Container $i, $name, $callable) {
+        $i->wrap('wrapper', function (Container $i, $name, $callable) {
             $object = $callable();
             $object->foo = 'bar';
 
@@ -537,7 +570,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $object = new \StdClass();
         $i = $this->i;
         $i->set('wrapper', $object);
-        $i->wrap('wrapper', function() {
+        $i->wrap('wrapper', function () {
             return [];
         });
 
@@ -571,7 +604,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $object = new \StdClass();
         $i = $this->i;
         $i->set('decorate', $object);
-        $i->decorate('decorate', function(Container $i, \StdClass $obj) {
+        $i->decorate('decorate', function (Container $i, \StdClass $obj) {
             $obj->foo = 'bar';
 
             return $obj;
