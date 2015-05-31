@@ -16,7 +16,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     protected $i;
 
     /**
-     * @covers ::set, \Tonis\Di\Exception\ServiceExistsException::__construct
+     * @covers ::set
+     * @covers \Tonis\Di\Exception\ServiceExistsException::__construct
      * @expectedException \Tonis\Di\Exception\ServiceExistsException
      * @expectedExceptionMessage The service with name "foo" already exists
      */
@@ -95,7 +96,10 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::offsetExists, ::offsetGet, ::offsetSet, ::offsetUnset
+     * @covers ::offsetExists
+     * @covers ::offsetGet
+     * @covers ::offsetSet
+     * @covers ::offsetUnset
      */
     public function testArrayAcces()
     {
@@ -110,7 +114,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::getParamIdentifier, ::setParamIdentifier
+     * @covers ::getParamIdentifier
+     * @covers ::setParamIdentifier
      */
     public function testParamIdentifier()
     {
@@ -123,7 +128,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * @covers ::getServiceIdentifier, ::setServiceIdentifier
+     * @covers ::getServiceIdentifier
+     * @covers ::setServiceIdentifier
      */
     public function testServiceIdentifier()
     {
@@ -135,7 +141,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::get, \Tonis\Di\Exception\NullServiceException
+     * @covers ::get
+     * @covers \Tonis\Di\Exception\NullServiceException
      * @expectedException \Tonis\Di\Exception\NullServiceException
      * @expectedExceptionMessage Creating service "null" failed: the service result was null
      */
@@ -148,7 +155,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::get, \Tonis\Di\Exception\RecursiveDependencyException
+     * @covers ::get
+     * @covers \Tonis\Di\Exception\RecursiveDependencyException
      * @expectedException \Tonis\Di\Exception\RecursiveDependencyException
      * @expectedExceptionMessage Dependency recursion detected for "recursion": "recursion->recursion"
      */
@@ -162,7 +170,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::get, \Tonis\Di\Exception\RecursiveDependencyException
+     * @covers ::get
+     * @covers \Tonis\Di\Exception\RecursiveDependencyException
      * @expectedException \Tonis\Di\Exception\ServiceDoesNotExistException
      * @expectedExceptionMessage The service with name "doesnotexist" does not exist
      */
@@ -172,7 +181,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::get, ::createInstanceCallback
+     * @covers ::get
+     * @covers ::createInstanceCallback
      */
     public function testGetCreatesServicesFromStringsIfClassExists()
     {
@@ -268,7 +278,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, \Tonis\Di\Exception\MissingClassException::__construct
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers \Tonis\Di\Exception\MissingClassException::__construct
      * @expectedException \Tonis\Di\Exception\MissingClassException
      * @expectedExceptionMessage Class "Missing\Class" does not exist for service "doesnotexist"
      */
@@ -280,7 +292,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray
+     * @covers ::create
+     * @covers ::createFromArray
      */
     public function testCreateHandlesArraysCreatesBasicClass()
     {
@@ -291,7 +304,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray
+     * @covers ::create
+     * @covers ::createFromArray
      */
     public function testCreateFromArrayCreatesParameterizedClass()
     {
@@ -314,7 +328,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      */
     public function testCreateFromArrayCreatesParameterizedClassFromParameters()
     {
@@ -338,7 +354,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      */
     public function testCreateFromArrayHandlesNestedParameters()
     {
@@ -366,7 +384,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      * @expectedException \Tonis\Di\Exception\ParameterKeyDoesNotExistException
      * @expectedExceptionMessage The key "[woogly][zoogly]" does not exist in parameter "boogly"
      */
@@ -389,7 +409,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      */
     public function testCreateHandlesArraysCreatesParameterizedClassFromService()
     {
@@ -414,7 +436,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFromArray, ::introspect
+     * @covers ::create
+     * @covers ::createFromArray
+     * @covers ::introspect
      */
     public function testCreateHandlesArraysCreatesParameterizedClassWithSetters()
     {
@@ -446,7 +470,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::introspect, \Tonis\Di\Exception\ParameterDoesNotExistException
+     * @covers ::introspect
+     * @covers \Tonis\Di\Exception\ParameterDoesNotExistException
      * @expectedException \Tonis\Di\Exception\ParameterDoesNotExistException
      * @expectedExceptionMessage The parameter with name "param" does not exist
      */
@@ -458,7 +483,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, \Tonis\Di\Exception\InvalidServiceException::__construct
+     * @covers ::create
+     * @covers \Tonis\Di\Exception\InvalidServiceException::__construct
      * @expectedException \Tonis\Di\Exception\InvalidServiceException
      * @expectedExceptionMessage Creating service "invalid" failed: the service spec is invalid
      */
@@ -470,7 +496,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::createFroMArray
+     * @covers ::create
+     * @covers ::createFroMArray
      */
     public function testCreateFromArrayCreatesServiceIfInstanceIsServiceFactory()
     {
@@ -481,7 +508,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::wrapService
+     * @covers ::create
+     * @covers ::wrapService
      */
     public function testWrappersModifiesOriginalInstance()
     {
@@ -501,7 +529,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::wrapService
+     * @covers ::create
+     * @covers ::wrapService
      */
     public function testCallableWrappersReturnNewInstance()
     {
@@ -517,7 +546,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::wrapService
+     * @covers ::create
+     * @covers ::wrapService
      */
     public function testServiceWrappersReturnNewInstance()
     {
@@ -533,7 +563,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::decorateService
+     * @covers ::create
+     * @covers ::decorateService
      */
     public function testCallableDecoratorsModifyInstance()
     {
@@ -552,7 +583,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::create, ::decorateService
+     * @covers ::create
+     * @covers ::decorateService
      */
     public function testServiceDecoratorsModifyInstance()
     {
