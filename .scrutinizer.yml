@@ -11,7 +11,7 @@ build_failure_conditions:
 tools:
     external_code_coverage:
         enabled: true
-        timeout: 180
+        timeout: 300
     php_cs_fixer:
         enabled: true
         config:
