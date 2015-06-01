@@ -1,6 +1,6 @@
 # Tonis\Di
 
-[![Build Status](https://travis-ci.org/tonis-io/di.svg)](https://travis-ci.org/tonis-io/di)
+[![Build Status](https://scrutinizer-ci.com/g/tonis-io/di/badges/build.png?b=master)](https://scrutinizer-ci.com/g/tonis-io/di/build-status/master)
 [![Code Coverage](https://scrutinizer-ci.com/g/tonis-io/di/badges/coverage.png?s=dfad664d97975d1d7a65b8b24506cda9769e44f9)](https://scrutinizer-ci.com/g/tonis-io/di/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tonis-io/di/badges/quality-score.png?s=d85152028d13ee4af9482d457f1e6b06f3d0b348)](https://scrutinizer-ci.com/g/tonis-io/di/)
 
