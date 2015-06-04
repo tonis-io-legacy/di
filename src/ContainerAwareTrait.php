@@ -7,16 +7,24 @@ trait ContainerAwareTrait
     /**
      * @var \Tonis\Di\Container|null
      */
-    private $container;
+    private $di;
 
     /**
      * @return \Tonis\Di\Container
      */
     public function di()
     {
-        if (!$this->container instanceof Container) {
-            $this->container = new Container();
+        if (!$this->di instanceof Container) {
+            $this->setDi(new Container);
         }
-        return $this->container;
+        return $this->di;
+    }
+
+    /**
+     * @param Container $di
+     */
+    public function setDi(Container $di)
+    {
+        $this->di = $di;
     }
 }

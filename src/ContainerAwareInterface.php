@@ -7,5 +7,5 @@ interface ContainerAwareInterface
     /**
      * @return \Tonis\Di\Container
      */
-    public function setDi();
+    public function setDi(Container $di);
 }
