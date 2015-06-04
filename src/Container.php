@@ -211,6 +211,9 @@ final class Container implements \ArrayAccess
      */
     private function createInstanceCallback($name, $spec)
     {
+        if (is_string($spec) && class_exists($spec)) {
+            $spec = new $spec;
+        }
         if ($spec instanceof ServiceFactoryInterface) {
             return function () use ($spec) {
                 return $spec->createService($this);
@@ -226,7 +229,7 @@ final class Container implements \ArrayAccess
                 return $spec;
             };
         }
-        throw new Exception\InvalidServiceException($name);
+        throw new Exception\InvalidServiceException($name, $spec);
     }
 
     /**
