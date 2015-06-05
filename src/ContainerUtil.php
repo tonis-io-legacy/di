@@ -20,6 +20,6 @@ abstract class ContainerUtil
                 return new $input();
             }
         }
-        return null;
+        return $input;
     }
 }
