@@ -2,14 +2,16 @@
 
 namespace Tonis\Di;
 
+use Interop\Container\ContainerInterface;
+
 abstract class ContainerUtil
 {
     /**
-     * @param Container $di
+     * @param ContainerInterface $di
      * @param mixed $input
      * @return mixed
      */
-    final public static function get(Container $di, $input)
+    final public static function get(ContainerInterface $di, $input)
     {
         if (is_string($input)) {
             if ($di->has($input)) {
