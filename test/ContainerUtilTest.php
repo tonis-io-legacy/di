@@ -10,9 +10,9 @@ class ContainerUtilsTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::get
      */
-    public function testGetReturnsNullIfNothingMatches()
+    public function testGetReturnsInputIfNothingMatches()
     {
-        $this->assertNull(ContainerUtil::get(new Container(), 'foobar'));
+        $this->assertSame('foobar', ContainerUtil::get(new Container(), 'foobar'));
     }
 
     /**

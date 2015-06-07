@@ -208,7 +208,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * @covers ::createInstanceCallback
      * @covers \Tonis\Di\Exception\InvalidServiceException
      * @expectedException \Tonis\Di\Exception\InvalidServiceException
-     * @expectedExceptionMessage Creating service "foob" failed: the service spec is invalid
+     * @expectedExceptionMessage Creating service "foob" failed: "Tonis\Di\TestAsset\DoesNotExist" was an invalid spec
      */
     public function testGetCreatesServicesWithNoValidOptionThrowsExpectedException()
     {
@@ -352,7 +352,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * @covers ::create
      * @covers \Tonis\Di\Exception\InvalidServiceException::__construct
      * @expectedException \Tonis\Di\Exception\InvalidServiceException
-     * @expectedExceptionMessage Creating service "invalid" failed: the service spec is invalid
+     * @expectedExceptionMessage Creating service "invalid" failed: "1" was an invalid spec
      */
     public function testCreateThrowsExceptionForInvalidServiceSpec()
     {
