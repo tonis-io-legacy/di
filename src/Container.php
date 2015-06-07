@@ -122,38 +122,6 @@ final class Container implements \ArrayAccess, ContainerInterface
     }
 
     /**
-     * @param string $paramIdentifier
-     */
-    public function setParamIdentifier($paramIdentifier)
-    {
-        $this->paramIdentifier = $paramIdentifier;
-    }
-
-    /**
-     * @return string
-     */
-    public function getParamIdentifier()
-    {
-        return $this->paramIdentifier;
-    }
-
-    /**
-     * @param string $serviceIdentifier
-     */
-    public function setServiceIdentifier($serviceIdentifier)
-    {
-        $this->serviceIdentifier = $serviceIdentifier;
-    }
-
-    /**
-     * @return string
-     */
-    public function getServiceIdentifier()
-    {
-        return $this->serviceIdentifier;
-    }
-
-    /**
      * @param string $name
      * @return object
      * @throws Exception\InvalidServiceException

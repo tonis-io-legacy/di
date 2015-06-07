@@ -136,33 +136,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::getParamIdentifier
-     * @covers ::setParamIdentifier
-     */
-    public function testParamIdentifier()
-    {
-        $value = '@@';
-        $i = $this->i;
-        $i->setParamIdentifier($value);
-
-        $this->assertSame($value, $i->getParamIdentifier());
-    }
-
-
-    /**
-     * @covers ::getServiceIdentifier
-     * @covers ::setServiceIdentifier
-     */
-    public function testServiceIdentifier()
-    {
-        $value = '@@';
-        $i = $this->i;
-        $i->setServiceIdentifier($value);
-
-        $this->assertSame($value, $i->getServiceIdentifier());
-    }
-
-    /**
      * @covers ::get
      * @covers \Tonis\Di\Exception\RecursiveDependencyException
      * @expectedException \Tonis\Di\Exception\RecursiveDependencyException
