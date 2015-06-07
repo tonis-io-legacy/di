@@ -6,49 +6,19 @@ use Interop\Container\ContainerInterface;
 
 final class Container implements \ArrayAccess, ContainerInterface
 {
-    /**
-     * @var string
-     */
-    protected $serviceIdentifier = '@';
-
-    /**
-     * @var string
-     */
-    protected $paramIdentifier = '$';
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $params = [];
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $services = [];
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $decorators = [];
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $wrappers = [];
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $retrieving = [];
-
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $parent;
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $specs = [];
 
     /**

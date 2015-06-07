@@ -196,7 +196,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetCreatesServicesFromStringsIfClassExists()
     {
         $i = $this->i;
-        $i->set('class', new TestFactory());
+        $i->set('class', TestFactory::class);
         $result = $i->get('class');
 
         $this->assertInstanceOf('StdClass', $result);
