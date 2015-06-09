@@ -2,7 +2,7 @@
 
 namespace Tonis\Di\TestAsset;
 
-use Tonis\Di\Container;
+use Interop\Container\ContainerInterface;
 use Tonis\Di\ServiceDecoratorInterface;
 
 class TestDecorator implements ServiceDecoratorInterface
@@ -10,7 +10,7 @@ class TestDecorator implements ServiceDecoratorInterface
     /**
      * {@inheritDoc}
      */
-    public function decorateService(Container $i, $instance)
+    public function decorateService(ContainerInterface $di, $instance)
     {
         $instance->didItWork = true;
     }

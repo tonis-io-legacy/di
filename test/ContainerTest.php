@@ -11,11 +11,8 @@ use Tonis\Di\TestAsset\TestWrapper;
  */
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
-
-    /**
-     * @var Container
-     */
-    protected $i;
+    /** @var Container */
+    protected $di;
 
     /**
      * @covers ::set
@@ -25,8 +22,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetThrowsExceptionForDuplicates()
     {
-        $i = $this->i;
-        $i->set(
+        $di = $this->di;
+        $di->set(
             'foo',
             function () {
             }
@@ -38,33 +35,45 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHas()
     {
-        $i = new Container();
-        $this->assertFalse($i->has('foo'));
+        $di = new Container();
+        $this->assertFalse($di->has('foo'));
 
-        $i->set('foo', null);
-        $this->assertTrue($i->has('foo'));
+        $di->set('foo', null);
+        $this->assertTrue($di->has('foo'));
 
-        $i->set('bar', 'bar');
-        $this->assertTrue($i->has('bar'));
+        $di->set('bar', 'bar');
+        $this->assertTrue($di->has('bar'));
+    }
+
+    /**
+     * @covers ::set
+     * @covers \Tonis\Di\Exception\ServiceExistsException::__construct
+     * @expectedException \Tonis\Di\Exception\ServiceExistsException
+     * @expectedExceptionMessage The service with name "foo" already exists
+     */
+    public function testSet()
+    {
+        $di = new Container();
+        $di->set('foo', 'foo', true);
+        $di->set('foo', 'foo', true);
     }
 
     /**
      * @covers ::set
      */
-    public function testSet()
+    public function testRawSet()
     {
-        $i = new Container();
-        $i->set('foo', 'foo');
-        $i->set('bar', 'bar');
+        $this->di->set('class', TestFactory::class, true);
+        $this->assertSame(TestFactory::class, $this->di->get('class'));
+    }
 
-        $refl = new \ReflectionClass($i);
-        $prop = $refl->getProperty('specs');
-        $prop->setAccessible(true);
-
-        $specs = $prop->getValue($i);
-        $this->assertCount(2, $specs);
-        $this->assertSame('foo', $specs['foo']);
-        $this->assertSame('bar', $specs['bar']);
+    /**
+     * @covers ::set
+     */
+    public function testRawSetThrowsExceptionOnDupes()
+    {
+        $this->di->set('class', TestFactory::class, true);
+        $this->assertSame(TestFactory::class, $this->di->get('class'));
     }
 
     /**
@@ -72,23 +81,23 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testDecorate()
     {
-        $i = $this->i;
-        $i->decorate(
+        $di = $this->di;
+        $di->decorate(
             'foo',
             function () {
             }
         );
-        $i->decorate(
+        $di->decorate(
             'bar',
             function () {
             }
         );
 
-        $refl = new \ReflectionClass($i);
+        $refl = new \ReflectionClass($di);
         $prop = $refl->getProperty('decorators');
         $prop->setAccessible(true);
 
-        $specs = $prop->getValue($i);
+        $specs = $prop->getValue($di);
         $this->assertCount(2, $specs);
     }
 
@@ -97,23 +106,23 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testWrap()
     {
-        $i = $this->i;
-        $i->wrap(
+        $di = $this->di;
+        $di->wrap(
             'foo',
             function () {
             }
         );
-        $i->wrap(
+        $di->wrap(
             'bar',
             function () {
             }
         );
 
-        $refl = new \ReflectionClass($i);
+        $refl = new \ReflectionClass($di);
         $prop = $refl->getProperty('wrappers');
         $prop->setAccessible(true);
 
-        $specs = $prop->getValue($i);
+        $specs = $prop->getValue($di);
         $this->assertCount(2, $specs);
     }
 
@@ -125,14 +134,14 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testArrayAccess()
     {
-        $i = $this->i;
+        $di = $this->di;
 
-        $i->offsetSet('foo', 'bar');
-        $this->assertTrue($i->offsetExists('foo'));
-        $this->assertSame('bar', $i->offsetGet('foo'));
+        $di->offsetSet('foo', 'bar');
+        $this->assertTrue($di->offsetExists('foo'));
+        $this->assertSame('bar', $di->offsetGet('foo'));
 
-        $i->offsetUnset('foo');
-        $this->assertFalse($i->offsetExists('foo'));
+        $di->offsetUnset('foo');
+        $this->assertFalse($di->offsetExists('foo'));
     }
 
     /**
@@ -143,11 +152,11 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetThrowsExceptionForRecursion()
     {
-        $i = $this->i;
-        $i->set('recursion', function (Container $i) {
-            return $i->get('recursion');
+        $di = $this->di;
+        $di->set('recursion', function (Container $di) {
+            return $di->get('recursion');
         });
-        $i->get('recursion');
+        $di->get('recursion');
     }
 
     /**
@@ -158,7 +167,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetThrowsExceptionForMissingService()
     {
-        $this->i->get('doesnotexist');
+        $this->di->get('doesnotexist');
     }
 
     /**
@@ -168,9 +177,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCreatesServicesFromStringsIfClassExists()
     {
-        $i = $this->i;
-        $i->set('class', TestFactory::class);
-        $result = $i->get('class');
+        $di = $this->di;
+        $di->set('class', TestFactory::class);
+        $result = $di->get('class');
 
         $this->assertInstanceOf('StdClass', $result);
     }
@@ -185,9 +194,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCreatesServicesWithNoValidOptionThrowsExpectedException()
     {
-        $i = $this->i;
-        $i->set('foob', 'Tonis\Di\TestAsset\DoesNotExist');
-        $result = $i->get('foob');
+        $di = $this->di;
+        $di->set('foob', 'Tonis\Di\TestAsset\DoesNotExist');
+        $result = $di->get('foob');
 
         $this->assertInstanceOf('StdClass', $result);
     }
@@ -199,9 +208,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCreatesServicesWithObjectReturnExpectedObject()
     {
-        $i = $this->i;
-        $i->set('foob', new \StdClass());
-        $result = $i->get('foob');
+        $di = $this->di;
+        $di->set('foob', new \StdClass());
+        $result = $di->get('foob');
 
         $this->assertInstanceOf('StdClass', $result);
     }
@@ -213,14 +222,14 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCreatesServicesWithClosureReturnExpectedObject()
     {
-        $i = $this->i;
-        $i->set(
+        $di = $this->di;
+        $di->set(
             'foob',
             function (Container $container) {
                 return new \StdClass();
             }
         );
-        $result = $i->get('foob');
+        $result = $di->get('foob');
 
         $this->assertInstanceOf('StdClass', $result);
     }
@@ -232,11 +241,11 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         $value = new \StdClass();
 
-        $i = $this->i;
-        $i->set('early', $value);
+        $di = $this->di;
+        $di->set('early', $value);
 
-        $first = $i->get('early');
-        $second = $i->get('early');
+        $first = $di->get('early');
+        $second = $di->get('early');
 
         $this->assertSame($value, $first);
         $this->assertSame($second, $first);
@@ -247,34 +256,34 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetUnsetSpecOnceComplete()
     {
-        $i = new Container();
-        $i->set(
+        $di = new Container();
+        $di->set(
             'foo',
             function () {
             }
         );
-        $i->set(
+        $di->set(
             'bar',
             function () {
             }
         );
-        $i->set(
+        $di->set(
             'baz',
             function () {
             }
         );
 
-        $refl = new \ReflectionClass($i);
+        $refl = new \ReflectionClass($di);
         $prop = $refl->getProperty('specs');
         $prop->setAccessible(true);
 
-        $this->assertCount(3, $prop->getValue($i));
+        $this->assertCount(3, $prop->getValue($di));
 
-        $i->get('foo');
-        $this->assertCount(2, $prop->getValue($i));
+        $di->get('foo');
+        $this->assertCount(2, $prop->getValue($di));
 
-        $i->get('bar');
-        $this->assertCount(1, $prop->getValue($i));
+        $di->get('bar');
+        $this->assertCount(1, $prop->getValue($di));
     }
 
     /**
@@ -282,11 +291,11 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateHandlesClosures()
     {
-        $i = $this->i;
-        $i->set('closure', function () {
+        $di = $this->di;
+        $di->set('closure', function () {
             return 'closure';
         });
-        $this->assertSame('closure', $i->get('closure'));
+        $this->assertSame('closure', $di->get('closure'));
     }
 
     /**
@@ -296,9 +305,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         $object = new \StdClass();
 
-        $i = $this->i;
-        $i->set('object', $object);
-        $this->assertSame($object, $i->get('object'));
+        $di = $this->di;
+        $di->set('object', $object);
+        $this->assertSame($object, $di->get('object'));
     }
 
     /**
@@ -306,9 +315,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateHandlesClassStrings()
     {
-        $i = $this->i;
-        $i->set('stdclass', new \StdClass);
-        $this->assertInstanceOf('StdClass', $i->get('stdclass'));
+        $di = $this->di;
+        $di->set('stdclass', new \StdClass);
+        $this->assertInstanceOf('StdClass', $di->get('stdclass'));
     }
 
     /**
@@ -316,9 +325,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateHandlesServiceFactories()
     {
-        $i = $this->i;
-        $i->set('factory', new TestAsset\TestFactory());
-        $this->assertInstanceOf('StdClass', $i->get('factory'));
+        $di = $this->di;
+        $di->set('factory', new TestAsset\TestFactory());
+        $this->assertInstanceOf('StdClass', $di->get('factory'));
     }
 
     /**
@@ -329,9 +338,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateThrowsExceptionForInvalidServiceSpec()
     {
-        $i = $this->i;
-        $i->set('invalid', true);
-        $i->get('invalid');
+        $di = $this->di;
+        $di->set('invalid', true);
+        $di->get('invalid');
     }
 
     /**
@@ -341,16 +350,16 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testWrappersModifiesOriginalInstance()
     {
         $object = new \StdClass();
-        $i = $this->i;
-        $i->set('wrapper', $object);
-        $i->wrap('wrapper', function (Container $i, $name, $callable) {
+        $di = $this->di;
+        $di->set('wrapper', $object);
+        $di->wrap('wrapper', function (Container $i, $name, $callable) {
             $object = $callable();
             $object->foo = 'bar';
 
             return $object;
         });
 
-        $result = $i->get('wrapper');
+        $result = $di->get('wrapper');
         $this->assertSame($object, $result);
         $this->assertSame('bar', $object->foo);
     }
@@ -362,13 +371,13 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testCallableWrappersReturnNewInstance()
     {
         $object = new \StdClass();
-        $i = $this->i;
-        $i->set('wrapper', $object);
-        $i->wrap('wrapper', function () {
+        $di = $this->di;
+        $di->set('wrapper', $object);
+        $di->wrap('wrapper', function () {
             return [];
         });
 
-        $result = $i->get('wrapper');
+        $result = $di->get('wrapper');
         $this->assertInternalType('array', $result);
     }
 
@@ -379,11 +388,11 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testServiceWrappersReturnNewInstance()
     {
         $object = new \StdClass();
-        $i = $this->i;
-        $i->set('wrapper', $object);
-        $i->wrap('wrapper', new TestWrapper());
+        $di = $this->di;
+        $di->set('wrapper', $object);
+        $di->wrap('wrapper', new TestWrapper());
 
-        $result = $i->get('wrapper');
+        $result = $di->get('wrapper');
         $this->assertSame($object, $result->original);
         $this->assertSame('wrapper', $result->name);
         $this->assertTrue($result->didItWork);
@@ -394,9 +403,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testServiceWrappersWithNoWrapperReturnsNull()
     {
-        $i = $this->i;
-        $i->set('class', new TestFactory());
-        $result = $i->get('class');
+        $di = $this->di;
+        $di->set('class', new TestFactory());
+        $result = $di->get('class');
 
         $this->assertInstanceOf('StdClass', $result);
     }
@@ -408,15 +417,15 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testCallableDecoratorsModifyInstance()
     {
         $object = new \StdClass();
-        $i = $this->i;
-        $i->set('decorate', $object);
-        $i->decorate('decorate', function (Container $i, \StdClass $obj) {
+        $di = $this->di;
+        $di->set('decorate', $object);
+        $di->decorate('decorate', function (Container $i, \StdClass $obj) {
             $obj->foo = 'bar';
 
             return $obj;
         });
 
-        $result = $i->get('decorate');
+        $result = $di->get('decorate');
         $this->assertSame($object, $result);
         $this->assertSame('bar', $object->foo);
     }
@@ -429,11 +438,11 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         $object = new \StdClass();
         $object->value = __FUNCTION__;
-        $i = $this->i;
-        $i->set('decorate', $object);
-        $i->decorate('decorate', new TestDecorator());
+        $di = $this->di;
+        $di->set('decorate', $object);
+        $di->decorate('decorate', new TestDecorator());
 
-        $result = $i->get('decorate');
+        $result = $di->get('decorate');
         $this->assertSame($object, $result);
         $this->assertTrue($result->didItWork);
     }
@@ -443,17 +452,17 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testServiceDecoratorsWithNoDecoratorReturns()
     {
-        $i = $this->i;
-        $i->set('class', new TestFactory());
-        $result = $i->get('class');
+        $di = $this->di;
+        $di->set('class', new TestFactory());
+        $result = $di->get('class');
 
         $this->assertInstanceOf('StdClass', $result);
     }
 
     protected function setUp()
     {
-        $i = $this->i = new Container();
-        $i->set('foo', new \StdClass());
-        $i->set('bar', new \StdClass());
+        $di = $this->di = new Container();
+        $di->set('foo', new \StdClass());
+        $di->set('bar', new \StdClass());
     }
 }

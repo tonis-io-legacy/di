@@ -2,7 +2,7 @@
 
 namespace Tonis\Di\TestAsset;
 
-use Tonis\Di\Container;
+use Interop\Container\ContainerInterface;
 use Tonis\Di\ServiceWrapperInterface;
 
 class TestWrapper implements ServiceWrapperInterface
@@ -10,7 +10,7 @@ class TestWrapper implements ServiceWrapperInterface
     /**
      * {@inheritDoc}
      */
-    public function wrapService(Container $i, $name, $callable)
+    public function wrapService(ContainerInterface $di, $name, $callable)
     {
         $instance = $callable();
         $wrapped = new \StdClass();

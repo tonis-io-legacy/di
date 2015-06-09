@@ -2,14 +2,16 @@
 
 namespace Tonis\Di;
 
+use Interop\Container\ContainerInterface;
+
 interface ServiceDecoratorInterface
 {
     /**
      * Decorates the provided instance.
      *
-     * @param Container $i
+     * @param ContainerInterface $di
      * @param mixed $instance
      * @return mixed
      */
-    public function decorateService(Container $i, $instance);
+    public function decorateService(ContainerInterface $di, $instance);
 }
