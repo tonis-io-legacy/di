@@ -6,9 +6,7 @@ use Interop\Container\ContainerInterface;
 
 trait ContainerAwareTrait
 {
-    /**
-     * @var \Tonis\Di\Container|null
-     */
+    /** @var ContainerInterface|null */
     private $di;
 
     /**
