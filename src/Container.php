@@ -45,6 +45,15 @@ final class Container implements \ArrayAccess, ContainerInterface
 
     /**
      * @param string $name
+     * @param mixed $value
+     */
+    public function setService($name, $value)
+    {
+        $this->services[$name] = $value;
+    }
+
+    /**
+     * @param string $name
      * @throws Exception\RecursiveDependencyException
      * @throws Exception\ServiceDoesNotExistException
      * @throws Exception\InvalidServiceException

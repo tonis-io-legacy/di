@@ -2,11 +2,13 @@
 
 namespace Tonis\Di;
 
+use Interop\Container\ContainerInterface;
+
 interface ServiceFactoryInterface
 {
     /**
-     * @param Container $di
+     * @param ContainerInterface $di
      * @return mixed
      */
-    public function createService(Container $di);
+    public function createService(ContainerInterface $di);
 }
