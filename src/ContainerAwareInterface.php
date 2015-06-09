@@ -2,10 +2,13 @@
 
 namespace Tonis\Di;
 
+use Interop\Container\ContainerInterface;
+
 interface ContainerAwareInterface
 {
     /**
-     * @return \Tonis\Di\Container
+     * @param ContainerInterface $di
+     * @return void
      */
-    public function setDi(Container $di);
+    public function setDi(ContainerInterface $di);
 }

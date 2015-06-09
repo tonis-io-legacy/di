@@ -2,6 +2,8 @@
 
 namespace Tonis\Di;
 
+use Interop\Container\ContainerInterface;
+
 trait ContainerAwareTrait
 {
     /**
@@ -14,16 +16,16 @@ trait ContainerAwareTrait
      */
     public function di()
     {
-        if (!$this->di instanceof Container) {
+        if (!$this->di instanceof ContainerInterface) {
             $this->setDi(new Container);
         }
         return $this->di;
     }
 
     /**
-     * @param Container $di
+     * @param ContainerInterface $di
      */
-    public function setDi(Container $di)
+    public function setDi(ContainerInterface $di)
     {
         $this->di = $di;
     }

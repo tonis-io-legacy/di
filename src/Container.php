@@ -33,23 +33,23 @@ final class Container implements \ArrayAccess, ContainerInterface
     /**
      * @param string $name
      * @param mixed $value
+     * @param bool $raw
      * @throws Exception\ServiceExistsException
      */
-    public function set($name, $value)
+    public function set($name, $value, $raw = false)
     {
+        if ($raw) {
+            if (isset($this->services[$name])) {
+                throw new Exception\ServiceExistsException($name);
+            }
+            $this->services[$name] = $value;
+            return;
+        }
+
         if (isset($this->specs[$name])) {
             throw new Exception\ServiceExistsException($name);
         }
         $this->specs[$name] = $value;
-    }
-
-    /**
-     * @param string $name
-     * @param mixed $value
-     */
-    public function setService($name, $value)
-    {
-        $this->services[$name] = $value;
     }
 
     /**
