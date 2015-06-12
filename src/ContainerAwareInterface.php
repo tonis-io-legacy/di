@@ -7,8 +7,8 @@ use Interop\Container\ContainerInterface;
 interface ContainerAwareInterface
 {
     /**
-     * @param ContainerInterface $di
+     * @param ContainerInterface $serviceContainer
      * @return void
      */
-    public function setDi(ContainerInterface $di);
+    public function setServiceContainer(ContainerInterface $serviceContainer);
 }
