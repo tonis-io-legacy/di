@@ -7,24 +7,24 @@ use Interop\Container\ContainerInterface;
 trait ContainerAwareTrait
 {
     /** @var ContainerInterface|null */
-    private $di;
+    private $serviceContainer;
 
     /**
      * @return \Tonis\Di\Container
      */
-    public function di()
+    public function getServiceContainer()
     {
-        if (!$this->di instanceof ContainerInterface) {
-            $this->setDi(new Container);
+        if (!$this->serviceContainer instanceof ContainerInterface) {
+            $this->setServiceContainer(new Container);
         }
-        return $this->di;
+        return $this->serviceContainer;
     }
 
     /**
-     * @param ContainerInterface $di
+     * @param ContainerInterface $serviceContainer
      */
-    public function setDi(ContainerInterface $di)
+    public function setServiceContainer(ContainerInterface $serviceContainer)
     {
-        $this->di = $di;
+        $this->serviceContainer = $serviceContainer;
     }
 }

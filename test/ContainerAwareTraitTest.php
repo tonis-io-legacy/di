@@ -8,17 +8,17 @@ namespace Tonis\Di;
 class ContainerAwareTraitTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @covers ::di
-     * @covers ::setDi
+     * @covers ::getServiceContainer
+     * @covers ::setServiceContainer
      */
     public function testSetGetContainer()
     {
         /** @var ContainerAwareTrait $t */
         $t = $this->getObjectForTrait('Tonis\Di\ContainerAwareTrait');
-        $this->assertInstanceOf('Tonis\Di\Container', $t->di());
+        $this->assertInstanceOf('Tonis\Di\Container', $t->getServiceContainer());
 
         $di = new Container;
-        $t->setDi($di);
-        $this->assertSame($di, $t->di());
+        $t->setServiceContainer($di);
+        $this->assertSame($di, $t->getServiceContainer());
     }
 }
