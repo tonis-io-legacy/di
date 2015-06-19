@@ -1,5 +1,5 @@
 {
-    "name": "tonis/di",
+    "name": "tonis-io/di",
     "authors": [
         {
             "name": "Kyle Spraggs",
@@ -30,10 +30,6 @@
                 "test/"
             ]
         }
-    },
-    "suggest": {
-        "doctrine/annotations": "~1.2, for creating components from annotations",
-        "symfony/finder": "~2.1, for using the Symfony Finder to find annotated components"
     },
     "extra": {
         "branch-alias": {
